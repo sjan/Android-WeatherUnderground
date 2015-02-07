@@ -1,5 +1,11 @@
 package org.lastresponders.weatherundergroundapp;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +19,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import org.lastresponders.weatherundergroundapp.asynctask.FetchCurrentCondition;
+import org.lastresponders.weatherundergroundapp.asynctask.FetchHourlyConditions;
+import org.lastresponders.weatherundergroundapp.asynctask.FetchThreeDayConditions;
+
 import java.util.Locale;
 
 
@@ -38,8 +51,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        FetchCurrentCondition task = new FetchCurrentCondition();
+  //      task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
+
+        FetchThreeDayConditions task2 = new FetchThreeDayConditions();
+//        task2.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
+
+       FetchHourlyConditions task3 = new FetchHourlyConditions();
+    //   task3.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
+        //monitor
+
+        //trigger async
+
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
+        //actionBar.a
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         // Create the adapter that will return a fragment for each of the three
@@ -71,6 +98,40 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final Context context = this;
+
+        final Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.dialog_main);
+        dialog.setTitle("zipcode");
+
+        // set the custom dialog components - text, image and button
+        TextView text = (TextView) dialog.findViewById(R.id.text);
+        text.setText("example!");
+//        ImageView image = (ImageView) dialog.findViewById(R.id.image);
+//        image.setImageResource(R.drawable.ic_launcher);
+
+        Button dialogButton = (Button) dialog.findViewById(R.id.dialogButton);
+        dialogButton.setText("SUBMIT");
+        // if button is clicked, close the custom dialog
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FetchCurrentCondition task1 = new FetchCurrentCondition();
+                task1.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
+
+                FetchThreeDayConditions task2 = new FetchThreeDayConditions();
+                task2.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
+
+                FetchHourlyConditions task3 = new FetchHourlyConditions();
+                task3.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
+
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
 
@@ -181,5 +242,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return rootView;
         }
     }
+
+
 
 }
