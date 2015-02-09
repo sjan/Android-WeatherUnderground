@@ -104,7 +104,7 @@ public class WundergroundClient implements IWundergroundClient {
         InputStream is = null;
         BufferedReader reader = null;
         try {
-            queryUrl = new StringBuilder(URL + "api/" + apiKey + "/conditions/q/" +zipcode+".json");
+            queryUrl = new StringBuilder(URL + "api/" + apiKey + "/hourly/q/" +zipcode+".json");
             if (zipcode == null) {
                 throw new MessageException("Null input");
             }
@@ -131,7 +131,7 @@ public class WundergroundClient implements IWundergroundClient {
             StringBuilder sb = new StringBuilder();
             String line = null;
             while ((line = reader.readLine()) != null) {
-                sb.append(line + "n");
+                sb.append(line );
             }
 
             ret = sb.toString();
@@ -158,7 +158,7 @@ public class WundergroundClient implements IWundergroundClient {
         InputStream is = null;
         BufferedReader reader = null;
         try {
-            queryUrl = new StringBuilder(URL + "api/" + apiKey + "/conditions/q/" +zipcode+".json");
+            queryUrl = new StringBuilder(URL + "api/" + apiKey + "/forecast/q/" +zipcode+".json");
             if (zipcode == null) {
                 throw new MessageException("Null input");
             }

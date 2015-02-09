@@ -1,9 +1,9 @@
-package org.lastresponders.weatherundergroundapp.data.model;
+package org.lastresponders.weatherundergroundapp.view;
 
 /**
- * Created by stephenjan on 2/5/15.
+ * Created by sjan on 2/8/2015.
  */
-public class ForecastDay{
+public class DayListItem {
     private String date;
     private String tempHigh;
     private String tempLow;
@@ -59,15 +59,5 @@ public class ForecastDay{
         this.date = date;
     }
 
-    @Override
-    public String toString() {
-        return "ForecastDay{" +
-                "date='" + date + '\'' +
-                ", tempHigh='" + tempHigh + '\'' +
-                ", tempLow='" + tempLow + '\'' +
-                ", conditions='" + conditions + '\'' +
-                ", aveHumidity='" + aveHumidity + '\'' +
-                ", aveWind='" + aveWind + '\'' +
-                '}';
-    }
+
 }

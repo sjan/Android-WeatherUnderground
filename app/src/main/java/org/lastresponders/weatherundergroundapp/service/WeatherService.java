@@ -4,6 +4,7 @@ import org.lastresponders.weatherundergroundapp.data.model.ForecastDay;
 import org.lastresponders.weatherundergroundapp.data.model.ForecastHour;
 import org.lastresponders.weatherundergroundapp.data.model.WeatherCondition;
 import org.lastresponders.weatherundergroundapp.data.access.*;
+import org.lastresponders.weatherundergroundapp.exception.MessageException;
 
 import java.util.List;
 
@@ -28,17 +29,21 @@ public class WeatherService implements IWeatherService {
     }
 
     @Override
-    public WeatherCondition currentCondition() {
-        return access.conditions();
+    public WeatherCondition currentCondition(String zipCode) {
+        return access.conditions(zipCode);
     }
 
     @Override
-    public List<ForecastHour> hourlyForecast() {
-        return access.hourly();
+    public List<ForecastHour> hourlyForecast(String zipCode) {
+        List<ForecastHour> ret = null;
+
+        ret = access.hourly(zipCode);
+
+        return ret;
     }
 
     @Override
-    public List<ForecastDay> threedayForecast() {
-        return  access.day();
+    public List<ForecastDay> threedayForecast(String zipCode) {
+        return  access.day(zipCode);
     }
 }

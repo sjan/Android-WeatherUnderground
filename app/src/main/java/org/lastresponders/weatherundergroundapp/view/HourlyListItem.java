@@ -1,12 +1,12 @@
-package org.lastresponders.weatherundergroundapp.data.model;
+package org.lastresponders.weatherundergroundapp.view;
 
 /**
- * Created by stephenjan on 2/5/15.
+ * Created by sjan on 2/8/2015.
  */
-public class ForecastHour {
+public class HourlyListItem {
     String time;
-    Temperature temp;
-    Temperature  feelsLike;
+    String temp;
+    String feelsLike;
     String condition;
     String windDirection;
 
@@ -16,23 +16,23 @@ public class ForecastHour {
         return time;
     }
 
-    public void setTime(String date) {
-        this.time = date;
+    public void setTime(String t) {
+        this.time= t;
     }
 
-    public Temperature getTemp() {
+    public String getTemp() {
         return temp;
     }
 
-    public void setTemp(Temperature temp) {
+    public void setTemp(String temp) {
         this.temp = temp;
     }
 
-    public Temperature getFeelsLike() {
+    public String getFeelsLike() {
         return feelsLike;
     }
 
-    public void setFeelsLike(Temperature feelsLike) {
+    public void setFeelsLike(String feelsLike) {
         this.feelsLike = feelsLike;
     }
 

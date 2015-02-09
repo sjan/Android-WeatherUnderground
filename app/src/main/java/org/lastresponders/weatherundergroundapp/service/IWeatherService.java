@@ -10,7 +10,7 @@ import java.util.List;
  * Created by stephenjan on 2/5/15.
  */
 public interface IWeatherService {
-    public WeatherCondition currentCondition();
-    public List<ForecastHour> hourlyForecast();
-    public List<ForecastDay> threedayForecast();
+    public WeatherCondition currentCondition(String zip);
+    public List<ForecastHour> hourlyForecast(String zip);
+    public List<ForecastDay> threedayForecast(String zip);
 }

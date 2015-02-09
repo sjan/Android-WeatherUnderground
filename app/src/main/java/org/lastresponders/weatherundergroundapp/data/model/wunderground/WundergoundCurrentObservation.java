@@ -245,11 +245,11 @@ public class WundergoundCurrentObservation {
         this.pressure_trend = pressure_trend;
     }
 
-    public String getDewpoint_string() {
+    public String getDewpointString() {
         return dewpoint_string;
     }
 
-    public void setDewpoint_string(String dewpoint_string) {
+    public void setDewpointString(String dewpoint_string) {
         this.dewpoint_string = dewpoint_string;
     }
 
@@ -269,11 +269,11 @@ public class WundergoundCurrentObservation {
         this.dewpoint_c = dewpoint_c;
     }
 
-    public String getHeat_index_string() {
+    public String getHeatIndexString() {
         return heat_index_string;
     }
 
-    public void setHeat_index_string(String heat_index_string) {
+    public void setHeatIndexString(String heat_index_string) {
         this.heat_index_string = heat_index_string;
     }
 

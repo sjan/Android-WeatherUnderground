@@ -1,12 +1,15 @@
 package org.lastresponders.weatherundergroundapp.data.model.wunderground;
 
+import org.lastresponders.weatherundergroundapp.data.model.Temperature;
+import org.lastresponders.weatherundergroundapp.data.model.WindCondition;
+
 /**
  * Created by stephenjan on 2/6/15.
  */
 public class WundergroungForecastDay {
     String date;
-    String high;
-    String low;
+    Temperature high;
+    Temperature low;
     String conditions;
     String icon;
     String iconUrl;
@@ -18,8 +21,8 @@ public class WundergroungForecastDay {
     String snowAllDay;
     String snowDay;
     String snowNight;
-    String maxWind;
-    String aveWind;
+    WindCondition maxWind;
+    WindCondition aveWind;
     String aveHumidity;
     String maxHumidity;
 
@@ -108,19 +111,19 @@ public class WundergroungForecastDay {
         this.date = date;
     }
 
-    public String getHigh() {
+    public Temperature getHigh() {
         return high;
     }
 
-    public void setHigh(String high) {
+    public void setHigh(Temperature high) {
         this.high = high;
     }
 
-    public String getLow() {
+    public Temperature getLow() {
         return low;
     }
 
-    public void setLow(String low) {
+    public void setLow(Temperature low) {
         this.low = low;
     }
 
@@ -164,19 +167,19 @@ public class WundergroungForecastDay {
         this.qpfDay = qpfDay;
     }
 
-    public String getMaxWind() {
+    public WindCondition getMaxWind() {
         return maxWind;
     }
 
-    public void setMaxWind(String maxWind) {
+    public void setMaxWind(WindCondition maxWind) {
         this.maxWind = maxWind;
     }
 
-    public String getAveWind() {
+    public WindCondition getAveWind() {
         return aveWind;
     }
 
-    public void setAveWind(String aveWind) {
+    public void setAveWind(WindCondition aveWind) {
         this.aveWind = aveWind;
     }
 

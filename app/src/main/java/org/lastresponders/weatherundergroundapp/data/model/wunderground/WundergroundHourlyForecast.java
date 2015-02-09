@@ -18,6 +18,16 @@ public class WundergroundHourlyForecast {
     private String wdir;
     private String wx;
     private String uxi;
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    private String time;
     private String humidity;
 
     public String getHumidity() {

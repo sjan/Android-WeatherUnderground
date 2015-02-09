@@ -7,7 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lastresponders.weatherundergroundapp.data.model.ForecastDay;
 import org.lastresponders.weatherundergroundapp.data.model.ForecastHour;
+import org.lastresponders.weatherundergroundapp.data.model.Temperature;
 import org.lastresponders.weatherundergroundapp.data.model.WeatherCondition;
+import org.lastresponders.weatherundergroundapp.data.model.WindCondition;
 import org.lastresponders.weatherundergroundapp.data.model.wunderground.SimpleForecast;
 import org.lastresponders.weatherundergroundapp.data.model.wunderground.WundergoundCurrentObservation;
 import org.lastresponders.weatherundergroundapp.data.model.wunderground.WundergroundConditionsResponse;
@@ -18,8 +20,11 @@ import org.lastresponders.weatherundergroundapp.data.model.wunderground.Wundergr
 import org.lastresponders.weatherundergroundapp.data.model.wunderground.WundergroundMeasurement;
 import org.lastresponders.weatherundergroundapp.data.model.wunderground.WundergroungForecastDay;
 import org.lastresponders.weatherundergroundapp.exception.MessageException;
+import org.lastresponders.weatherundergroundapp.view.DayListItem;
+import org.lastresponders.weatherundergroundapp.view.HourlyListItem;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,14 +34,17 @@ import java.util.List;
 public class MessageFactory {
     public WeatherCondition weatherCondition(WundergoundCurrentObservation wundergroundWeatherCondition) {
         WeatherCondition ret = new WeatherCondition();
+        Log.d("WeatherCondition", "weatherCondition " + wundergroundWeatherCondition.toString());
 
-        Log.d("WeatherCondition", "weatherCondition");
-
-        ret.setFeelsLike(wundergroundWeatherCondition.getFeelslike_c());
-        ret.setIcon(wundergroundWeatherCondition.getIcon());
-        ret.setLocation(wundergroundWeatherCondition.getObservationLocation());
+        ret.setFeelsLike(wundergroundWeatherCondition.getFeelslike_string());
+        ret.setWind(wundergroundWeatherCondition.getWindString());
+        ret.setWindChill(wundergroundWeatherCondition.getWindchill_string()); //?
+        ret.setHeatIndex(wundergroundWeatherCondition.getHeatIndexString());
+        ret.setDewPoint(wundergroundWeatherCondition.getDewpointString());
         ret.setTemperature(wundergroundWeatherCondition.getTemperatureString());
-        ret.setWind(wundergroundWeatherCondition.getWindDir());
+        ret.setObservationTime(wundergroundWeatherCondition.getObjservationTimeRFC822());
+        ret.setLocalTime(wundergroundWeatherCondition.getLocalTime());
+        ret.setWeather(wundergroundWeatherCondition.getWeather());
         return ret;
 
     }
@@ -47,11 +55,6 @@ public class MessageFactory {
         WundergoundCurrentObservation ret = new WundergoundCurrentObservation();
 
         try {
-            /*  ret.setFeelsLike(wundergroundWeatherCondition.getFeelslike_c());
-        ret.setIcon(wundergroundWeatherCondition.getIcon());
-        ret.setLocation(wundergroundWeatherCondition.getObservationLocation());
-        ret.setTemperature(wundergroundWeatherCondition.getTemperatureString());
-        ret.setWind(wundergroundWeatherCondition.getWindDir());*/
             ret.setFeelslike_c(currentObservation.getString("feelslike_c"));
             ret.setIcon(currentObservation.getString("icon"));
             ret.setObservationLocation(currentObservation.getString("observation_location"));
@@ -62,22 +65,22 @@ public class MessageFactory {
             currentObservation.getJSONObject("observation_location");
             currentObservation.getJSONObject("estimated");
        //     ret.setStationId(currentObservation.getString("station_id"));
-            currentObservation.getString("observation_time");
-            currentObservation.getString("observation_time_rfc822");
+            ret.setObservatoinTime(currentObservation.getString("observation_time"));
+            ret.setObjservationTimeRFC822(currentObservation.getString("observation_time_rfc822"));
             currentObservation.getString("observation_epoch");
-            currentObservation.getString("local_time_rfc822");
+            ret.setLocalTime(currentObservation.getString("local_time_rfc822"));
 
-            currentObservation.getString("local_epoch");
+            ret.setLocalTimeEpoch(currentObservation.getString("local_epoch"));
 
             currentObservation.getString("local_tz_short");
             currentObservation.getString("local_tz_long");
             currentObservation.getString("local_tz_offset");
-            currentObservation.getString("weather");
-            currentObservation.getString("temperature_string");
+            ret.setWeather(currentObservation.getString("weather"));
+            ret.setTemperatureString(currentObservation.getString("temperature_string"));
             currentObservation.getString("temp_f");
             currentObservation.getString("temp_c");
             currentObservation.getString("relative_humidity");
-            currentObservation.getString("wind_string");
+            ret.setWindString(currentObservation.getString("wind_string"));
             currentObservation.getString("wind_dir");
             currentObservation.getString("wind_degrees");
             currentObservation.getString("wind_mph");
@@ -89,17 +92,17 @@ public class MessageFactory {
             currentObservation.getString("pressure_mb");
             currentObservation.getString("pressure_in");
             currentObservation.getString("pressure_trend");
-            currentObservation.getString("dewpoint_string");
+            ret.setDewpointString(currentObservation.getString("dewpoint_string"));
             currentObservation.getString("dewpoint_f");
             currentObservation.getString("dewpoint_c");
 
-            currentObservation.getString("heat_index_string");
+            ret.setHeatIndexString(currentObservation.getString("heat_index_string"));
             currentObservation.getString("heat_index_f");
             currentObservation.getString("heat_index_c");
-            currentObservation.getString("windchill_string");
+            ret.setWindchill_string(currentObservation.getString("windchill_string"));
             currentObservation.getString("windchill_f");
             currentObservation.getString("windchill_c");
-            currentObservation.getString("feelslike_string");
+            ret.setFeelslike_string(currentObservation.getString("feelslike_string"));
             currentObservation.getString("feelslike_f");
             currentObservation.getString("feelslike_c");
 
@@ -162,6 +165,7 @@ public class MessageFactory {
 
 
         } catch (JSONException e) {
+            e.printStackTrace();
             throw new MessageException(e);
         }
 
@@ -197,7 +201,10 @@ public class MessageFactory {
     private WundergroundHourlyForecast wundergroundHourlyForecast(JSONObject jsonObject) throws MessageException {
         WundergroundHourlyForecast ret = new WundergroundHourlyForecast();
         try {
-            ret.setFCTIME(jsonObject.getString("FCTTIME"));
+            JSONObject object = jsonObject.getJSONObject("FCTTIME");
+            String time = object.getString("civil");
+
+            ret.setTime(time);
             ret.setTemp(this.wundergroundMeasurement(jsonObject.getJSONObject("temp")));
             ret.setDewpoint(this.wundergroundMeasurement(jsonObject.getJSONObject("dewpoint")));
             ret.setCondition(jsonObject.getString("condition"));
@@ -206,7 +213,8 @@ public class MessageFactory {
             ret.setFctcode(jsonObject.getString("fctcode"));
             ret.setSky(jsonObject.getString("sky"));
             ret.setWspd(this.wundergroundMeasurement(jsonObject.getJSONObject("wspd")));
-            ret.setWdir(jsonObject.getString("wdir"));
+            JSONObject windDirection = jsonObject.getJSONObject("wdir");
+            ret.setWdir(windDirection.getString("dir"));
             ret.setWx(jsonObject.getString("wx"));
             ret.setUxi(jsonObject.getString("uvi"));
             ret.setHumidity(jsonObject.getString("humidity"));
@@ -238,6 +246,7 @@ public class MessageFactory {
             ret.setForecast(wundergroundForecast);
 
         } catch (JSONException e) {
+            e.printStackTrace();
             throw new MessageException(e);
         }
 
@@ -282,13 +291,25 @@ public class MessageFactory {
         return ret;
     }
 
+    private Temperature temperature(JSONObject temp) throws MessageException {
+        Temperature ret = new Temperature();
+        try {
+            ret.setCelsius(temp.getString("celsius"));
+            ret.setFahrenheit(temp.getString("fahrenheit"));
+        } catch (JSONException e ) {
+            throw new MessageException(e);
+        }
+        return ret;
+    }
+
     private WundergroungForecastDay wundergroungForecastDay(JSONObject object) throws MessageException {
         WundergroungForecastDay ret = new WundergroungForecastDay();
         try {
-            ret.setDate(object.getJSONObject("date").toString());
+            String prettyDate = object.getJSONObject("date").getString("pretty");
+            ret.setDate(prettyDate);
             ret.setPeriod(object.getString("period"));
-            ret.setHigh(object.getString("high"));
-            ret.setLow(object.getString("low"));
+            ret.setHigh(this.temperature(object.getJSONObject("high")));
+            ret.setLow(this.temperature(object.getJSONObject("low")));
             ret.setConditions(object.getString("conditions"));
             ret.setIcon(object.getString("icon"));
             ret.setIconUrl(object.getString("icon_url"));
@@ -299,8 +320,8 @@ public class MessageFactory {
             ret.setSnowAllDay(object.getString("snow_allday"));
             ret.setSnowDay(object.getString("snow_day"));
             ret.setSnowNight(object.getString("snow_night"));
-            ret.setMaxWind(object.getString("maxwind"));
-            ret.setAveWind(object.getString("avewind"));
+            ret.setMaxWind(this.windCondition(object.getJSONObject("maxwind")));
+            ret.setAveWind(this.windCondition(object.getJSONObject("avewind")));
             ret.setAveHumidity(object.getString("avehumidity"));
             ret.setMaxHumidity(object.getString("maxhumidity"));
             ret.setMinHumidity(object.getString("minhumidity"));
@@ -313,6 +334,20 @@ public class MessageFactory {
         return ret;
     }
 
+
+    public WindCondition windCondition(JSONObject object) throws MessageException {
+        WindCondition ret  = new WindCondition();
+        try {
+            ret.setDegrees(object.getString("degrees"));
+            ret.setDir(object.getString("dir"));
+            ret.setKph(object.getString("kph"));
+            ret.setMph(object.getString("mph"));
+        } catch (JSONException e) {
+            throw new MessageException(e);
+        }
+
+        return ret;
+    }
 
     public List<ForecastDay> forecastDayList(List<WundergroungForecastDay> list) {
         List<ForecastDay> ret = new ArrayList<ForecastDay>();
@@ -332,8 +367,12 @@ public class MessageFactory {
         ForecastDay forecastDay = new ForecastDay();
 
         forecastDay.setDate(day.getDate());
-        forecastDay.setHigh(  day.getHigh());
-        forecastDay.setLow(  day.getHigh());
+        forecastDay.setAveHumidity(day.getAveHumidity());
+        forecastDay.setAveWind(day.getAveWind().getDir());
+        forecastDay.setConditions(day.getConditions());
+        forecastDay.setTempHigh(day.getHigh().getCelsius());
+        forecastDay.setTempLow(day.getLow().getCelsius());
+
         return forecastDay;
     }
 
@@ -354,9 +393,42 @@ public class MessageFactory {
     private ForecastHour forecastHour(WundergroundHourlyForecast forecast) {
         ForecastHour ret = new ForecastHour();
         ret.setCondition(forecast.getCondition());
-        ret.setTime(forecast.getFCTIME());
-        ret.setIconUrl(forecast.getIconUrl());
+        ret.setTime(forecast.getTime());
+        ret.setFeelsLike(this.temperature(forecast.getFeelslike()));
+        ret.setTemp(this.temperature(forecast.getTemp()));
+        ret.setWindDirection(forecast.getWdir());
 
         return ret;
+    }
+
+    private Temperature temperature(WundergroundMeasurement feelslike) {
+        Temperature ret = new Temperature();
+        ret.setCelsius(feelslike.getMetric());
+        ret.setFahrenheit(feelslike.getEnglish());
+
+        return ret;
+
+    }
+
+    public DayListItem dayListItem(ForecastDay day) {
+        DayListItem ret = new DayListItem();
+        ret.setAveHumidity(day.getAveHumidity());
+        ret.setAveWind(day.getAveWind());
+        ret.setConditions(day.getConditions());
+        ret.setDate(day.getDate());
+        ret.setTempHigh(day.getTempHigh());
+        ret.setTempLow(day.getTempLow());
+
+        return ret;
+    }
+
+    public HourlyListItem hourlyListItem(ForecastHour forecastHour) {
+        HourlyListItem item = new HourlyListItem();
+        item.setWindDirection(forecastHour.getWindDirection());
+        item.setTime(forecastHour.getTime());
+        item.setCondition(forecastHour.getCondition());
+        item.setFeelsLike(forecastHour.getFeelsLike().getCelsius());
+        item.setTemp(forecastHour.getTemp().getCelsius());
+        return item;
     }
 }

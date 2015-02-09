@@ -21,22 +21,22 @@ import java.util.List;
  * Created by stephenjan on 2/5/15.
  */
 public class WundergroundAccess {
-    private IWundergroundClient client = new WundergroundClientMock();
+    private IWundergroundClient client = new WundergroundClient();
     private MessageFactory messageFactory = new MessageFactory();
 
     public WundergroundAccess() {
 
     }
 
-    public WeatherCondition conditions() {
-        Log.d("WundergroundAccess", "zipcode:");
+    public WeatherCondition conditions(String zipCode) {
+        Log.d("WundergroundAccess", "conditions: zipcode:"+zipCode);
 
         WeatherCondition ret = null;
         JSONObject jsonObject = null;
 
         WundergroundConditionsResponse wundergroundConditionsResponse = null;
         try {
-            String response = client.conditions("10024");
+            String response = client.conditions(zipCode);
             jsonObject  = new JSONObject(response);
             wundergroundConditionsResponse = messageFactory.wundergroundConditionResponse(jsonObject);
             ret =  messageFactory.weatherCondition(wundergroundConditionsResponse.getCurrentObservation());
@@ -52,10 +52,12 @@ public class WundergroundAccess {
     }
 
 
-    public List<ForecastHour> hourly() {
+    public List<ForecastHour> hourly(String zipCode) {
+        Log.d("WundergroundAccess", "hourly: zip:"+zipCode);
+
         List<ForecastHour>  ret = null;
         try {
-        String response = client.hourly("10024");
+        String response = client.hourly(zipCode);
 
             JSONObject jsonObject = null;
 
@@ -73,23 +75,20 @@ public class WundergroundAccess {
             e.printStackTrace();
         }
 
-
-
-
         return ret;
     }
 
 
-    public List<ForecastDay> day() {
+    public List<ForecastDay> day(String zipCode) {
 
-        Log.d("WundergroundAccess", "zipcode:");
+        Log.d("WundergroundAccess", "day: zip:"+zipCode);
 
         List<ForecastDay>  ret = null;
         JSONObject jsonObject = null;
 
         WundergroundConditionsResponse wundergroundConditionsResponse = null;
         try {
-            String response = client.day("10024");
+            String response = client.day(zipCode);
             Log.d("WundergroundAccess:day",response);
             jsonObject  = new JSONObject(response);
             WundergroundForecastResponse wundergroundForecastResponse = messageFactory.wundergroundForecastResponse(jsonObject);

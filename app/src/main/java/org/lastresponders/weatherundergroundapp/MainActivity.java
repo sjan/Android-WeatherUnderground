@@ -1,35 +1,91 @@
 package org.lastresponders.weatherundergroundapp;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTabHost;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TabHost;
 
 import org.lastresponders.weatherundergroundapp.asynctask.FetchCurrentCondition;
 import org.lastresponders.weatherundergroundapp.asynctask.FetchHourlyConditions;
 import org.lastresponders.weatherundergroundapp.asynctask.FetchThreeDayConditions;
+import org.lastresponders.weatherundergroundapp.data.model.ForecastDay;
+import org.lastresponders.weatherundergroundapp.data.model.ForecastHour;
+import org.lastresponders.weatherundergroundapp.data.model.WeatherCondition;
+import org.lastresponders.weatherundergroundapp.view.CurrentTabFragment;
+import org.lastresponders.weatherundergroundapp.view.HourlyTabFragment;
+import org.lastresponders.weatherundergroundapp.view.OnTaskCompleted;
+import org.lastresponders.weatherundergroundapp.view.ThreeDayTabFragment;
 
-import java.util.Locale;
+import java.util.Date;
+import java.util.List;
+
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener , OnTaskCompleted{
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ApplicationState state = ApplicationState.getInstance();
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d("MainActivity","OnResume");
+
+        if(state.getRefresh() ) {
+            Log.d("MainActivity","OnResume:refresh");
+            fetchData();
+
+        }
+
+    }
 
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
+    public WeatherCondition getWeatherCondition() {
+        return weatherCondition;
+    }
+
+    public void setWeatherCondition(WeatherCondition weatherCondition) {
+        this.weatherCondition = weatherCondition;
+    }
+
+    public List<ForecastDay> getForecaseDays() {
+        return forecaseDays;
+    }
+
+    public void setForecaseDays(List<ForecastDay> forecaseDays) {
+        this.forecaseDays = forecaseDays;
+    }
+
+    public List<ForecastHour> getForecastHours() {
+        return forecastHours;
+    }
+
+    public void setForecastHours(List<ForecastHour> forecastHours) {
+        this.forecastHours = forecastHours;
+    }
+
+
+    WeatherCondition weatherCondition = null;
+    List<ForecastDay> forecaseDays = null;
+    List<ForecastHour> forecastHours = null;
+    Date lastUpdate = null;
+
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -39,95 +95,67 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    SectionsPagerAdapter mSectionsPagerAdapter;
+
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
+    private FragmentTabHost mTabHost;
+    //private DrawerLayout mDrawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //set up tabs
+        mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
+        mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
 
-        FetchCurrentCondition task = new FetchCurrentCondition();
-  //      task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
+        TabHost.TabSpec spec = mTabHost.newTabSpec("Current").setIndicator("Current");
+        mTabHost.addTab(spec,CurrentTabFragment.class, null);
+        spec = mTabHost.newTabSpec("ThreeDay").setIndicator("Three Day");
+        mTabHost.addTab(spec, ThreeDayTabFragment.class, null);
+        spec = mTabHost.newTabSpec("Hourly").setIndicator("Hourly");
+        mTabHost.addTab(spec, HourlyTabFragment.class, null);
 
-        FetchThreeDayConditions task2 = new FetchThreeDayConditions();
-//        task2.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
+        //ACTION Bar
+        //set up settings
 
-       FetchHourlyConditions task3 = new FetchHourlyConditions();
-    //   task3.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
-        //monitor
+        //set up refresh button
 
-        //trigger async
 
-        // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
-        //actionBar.a
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        //drawerlayout
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        String[] labels = {"update zipcode"};
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item_1,
+                labels));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        // When swiping between different sections, select the corresponding
-        // tab. We can also use ActionBar.Tab#select() to do this if we have
-        // a reference to the Tab.
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
-
-        // For each of the sections in the app, add a tab to the action bar.
-        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-            // Create a tab with text corresponding to the page title defined by
-            // the adapter. Also specify this Activity object, which implements
-            // the TabListener interface, as the callback (listener) for when
-            // this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mSectionsPagerAdapter.getPageTitle(i))
-                            .setTabListener(this));
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //set up dialog
         final Context context = this;
 
         final Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.dialog_main);
         dialog.setTitle("zipcode");
 
-        // set the custom dialog components - text, image and button
-        TextView text = (TextView) dialog.findViewById(R.id.text);
-        text.setText("example!");
-//        ImageView image = (ImageView) dialog.findViewById(R.id.image);
-//        image.setImageResource(R.drawable.ic_launcher);
-
         Button dialogButton = (Button) dialog.findViewById(R.id.dialogButton);
         dialogButton.setText("SUBMIT");
-        // if button is clicked, close the custom dialog
+
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FetchCurrentCondition task1 = new FetchCurrentCondition();
-                task1.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
+                EditText edit=(EditText)dialog.findViewById(R.id.zipCodeEditText);
+                String zipCode=edit.getText().toString();
 
-                FetchThreeDayConditions task2 = new FetchThreeDayConditions();
-                task2.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
-
-                FetchHourlyConditions task3 = new FetchHourlyConditions();
-                task3.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null);
-
-                dialog.dismiss();
+                if(zipCode!=null) {
+                    ApplicationState.getInstance().setZipCode(zipCode);
+                    ((MainActivity) context).fetchData();
+                    dialog.dismiss();
+                }
             }
         });
 
@@ -151,6 +179,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Log.d("MainActivity","actionbar:settings");
+            //another popup
+            return true;
+        } else if (id == R.id.action_refresh) {
+            Log.d("MainActivity","actionbar:refresh");
+            fetchData ();
             return true;
         }
 
@@ -161,6 +195,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
+        Log.d("MainActivity","onTabSelected");
         mViewPager.setCurrentItem(tab.getPosition());
     }
 
@@ -172,77 +207,60 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
-    /**
-     * A {@link android.support.v4.app.FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    @Override
+    public void populateCurrentConditions() {
+        Log.d("MainActivity","populateCurrentConditions");
+        CurrentTabFragment frag =  (CurrentTabFragment)getSupportFragmentManager().findFragmentByTag("Current");
+        if(frag!=null) {
+            frag.populate();
+        }
+    }
 
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
+    @Override
+    public void populateHourlyForecast() {
+        Log.d("MainActivity","populateHourlyForecast");
+        HourlyTabFragment frag =  (HourlyTabFragment)getSupportFragmentManager().findFragmentByTag("Hourly");
+        if(frag!=null) {
+            frag.populate();
+        }
+    }
+
+    @Override
+    public void populateThreeDayForecast() {
+        Log.d("MainActivity","populateThreeDayForecast");
+        ThreeDayTabFragment frag =  (ThreeDayTabFragment)getSupportFragmentManager().findFragmentByTag("ThreeDay");
+        if(frag!=null) {
+            frag.populate();
+        }
+    }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        public DrawerItemClickListener() {
         }
 
         @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
-        }
-
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
-                case 2:
-                    return getString(R.string.title_section3).toUpperCase(l);
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            if(position == 0) {
+                Intent intent = new Intent(view.getContext(), SettingActivity.class);
+                startActivity(intent);
+                mDrawerLayout.closeDrawer(mDrawerList);
             }
-            return null;
         }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+    void fetchData () {
+        Log.d("MainActivity","fetchData");
+        if (state.getZipCode() != null ) {
+            FetchCurrentCondition task1 = new FetchCurrentCondition(this);
+            task1.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, state.getZipCode());
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
+            FetchThreeDayConditions task2 = new FetchThreeDayConditions(this);
+            task2.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, state.getZipCode());
 
-        public PlaceholderFragment() {
-        }
+            FetchHourlyConditions task3 = new FetchHourlyConditions(this);
+            task3.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, state.getZipCode());
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
+            state.setRefresh(false);
         }
     }
-
-
-
 }
