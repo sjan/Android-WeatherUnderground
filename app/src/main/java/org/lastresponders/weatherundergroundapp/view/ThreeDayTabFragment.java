@@ -11,11 +11,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import org.lastresponders.weatherundergroundapp.ApplicationState;
-import org.lastresponders.weatherundergroundapp.MainActivity;
 import org.lastresponders.weatherundergroundapp.R;
-import org.lastresponders.weatherundergroundapp.data.model.ForecastDay;
-
-import java.util.List;
 
 /**
  * Created by sjan on 2/7/2015.

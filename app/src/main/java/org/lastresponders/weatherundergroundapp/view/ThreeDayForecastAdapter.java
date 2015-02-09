@@ -34,11 +34,6 @@ public class ThreeDayForecastAdapter extends ArrayAdapter<DayListItem> {
         super(context, textViewResourceId);
     }
 
-    public ThreeDayForecastAdapter(Context context, int resource,  List<ForecastDay> forecastList) {
-        super(context, resource);
-        this.setForecastDayList(forecastList);
-    }
-
     @Override
     public int getCount() {
         if(forecastDayList == null)
@@ -91,8 +86,6 @@ public class ThreeDayForecastAdapter extends ArrayAdapter<DayListItem> {
         }
 
         return v;
-
-
     }
 
     public long getItemId(int position) {

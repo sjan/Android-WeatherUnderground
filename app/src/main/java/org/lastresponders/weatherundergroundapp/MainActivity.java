@@ -25,84 +25,27 @@ import android.widget.TabHost;
 import org.lastresponders.weatherundergroundapp.asynctask.FetchCurrentCondition;
 import org.lastresponders.weatherundergroundapp.asynctask.FetchHourlyConditions;
 import org.lastresponders.weatherundergroundapp.asynctask.FetchThreeDayConditions;
-import org.lastresponders.weatherundergroundapp.data.model.ForecastDay;
-import org.lastresponders.weatherundergroundapp.data.model.ForecastHour;
-import org.lastresponders.weatherundergroundapp.data.model.WeatherCondition;
 import org.lastresponders.weatherundergroundapp.view.CurrentTabFragment;
 import org.lastresponders.weatherundergroundapp.view.HourlyTabFragment;
 import org.lastresponders.weatherundergroundapp.view.OnTaskCompleted;
 import org.lastresponders.weatherundergroundapp.view.ThreeDayTabFragment;
 
-import java.util.Date;
-import java.util.List;
-
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener , OnTaskCompleted{
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener , OnTaskCompleted {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ApplicationState state = ApplicationState.getInstance();
+    private FragmentTabHost mTabHost;
+
 
     @Override
     protected void onResume() {
         super.onResume();
-
         Log.d("MainActivity","OnResume");
-
         if(state.getRefresh() ) {
             Log.d("MainActivity","OnResume:refresh");
             fetchData();
-
         }
-
     }
-
-
-    public WeatherCondition getWeatherCondition() {
-        return weatherCondition;
-    }
-
-    public void setWeatherCondition(WeatherCondition weatherCondition) {
-        this.weatherCondition = weatherCondition;
-    }
-
-    public List<ForecastDay> getForecaseDays() {
-        return forecaseDays;
-    }
-
-    public void setForecaseDays(List<ForecastDay> forecaseDays) {
-        this.forecaseDays = forecaseDays;
-    }
-
-    public List<ForecastHour> getForecastHours() {
-        return forecastHours;
-    }
-
-    public void setForecastHours(List<ForecastHour> forecastHours) {
-        this.forecastHours = forecastHours;
-    }
-
-
-    WeatherCondition weatherCondition = null;
-    List<ForecastDay> forecaseDays = null;
-    List<ForecastHour> forecastHours = null;
-    Date lastUpdate = null;
-
-
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-
-
-    /**
-     * The {@link android.support.v4.view.ViewPager} that will host the section contents.
-     */
-    ViewPager mViewPager;
-    private FragmentTabHost mTabHost;
-    //private DrawerLayout mDrawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +55,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         //set up tabs
         mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
         mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
-
         TabHost.TabSpec spec = mTabHost.newTabSpec("Current").setIndicator("Current");
         mTabHost.addTab(spec,CurrentTabFragment.class, null);
         spec = mTabHost.newTabSpec("ThreeDay").setIndicator("Three Day");
@@ -120,24 +62,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         spec = mTabHost.newTabSpec("Hourly").setIndicator("Hourly");
         mTabHost.addTab(spec, HourlyTabFragment.class, null);
 
-        //ACTION Bar
-        //set up settings
-
-        //set up refresh button
-
-
         //drawerlayout
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         String[] labels = {"update zipcode"};
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item_1,
+                R.layout.drawer_list_item,
                 labels));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         //set up dialog
         final Context context = this;
-
         final Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.dialog_main);
         dialog.setTitle("zipcode");
@@ -172,12 +107,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Log.d("MainActivity","actionbar:settings");
             //another popup
@@ -187,7 +118,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             fetchData ();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -196,15 +126,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
         Log.d("MainActivity","onTabSelected");
-        mViewPager.setCurrentItem(tab.getPosition());
+        //mViewPager.setCurrentItem(tab.getPosition());
     }
 
     @Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        Log.d("MainActivity","onTabUnselected");
     }
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        Log.d("MainActivity","onTabReselected");
     }
 
     @Override

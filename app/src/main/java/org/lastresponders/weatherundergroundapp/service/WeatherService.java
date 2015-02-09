@@ -35,10 +35,7 @@ public class WeatherService implements IWeatherService {
 
     @Override
     public List<ForecastHour> hourlyForecast(String zipCode) {
-        List<ForecastHour> ret = null;
-
-        ret = access.hourly(zipCode);
-
+        List<ForecastHour> ret =  access.hourly(zipCode);
         return ret;
     }
 

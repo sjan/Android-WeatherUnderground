@@ -35,10 +35,6 @@ public class HourlyForecastAdapter extends ArrayAdapter<HourlyListItem> {
         super(context, textViewResourceId);
     }
 
-    public HourlyForecastAdapter(Context context, int resource,  List<ForecastHour> forecastHourList) {
-        super(context, resource);
-        this.setForecastHourList(forecastHourList);
-    }
 
     @Override
     public int getCount() {

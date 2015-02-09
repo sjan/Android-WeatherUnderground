@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.lastresponders.weatherundergroundapp.ApplicationState;
-import org.lastresponders.weatherundergroundapp.MainActivity;
 import org.lastresponders.weatherundergroundapp.R;
 import org.lastresponders.weatherundergroundapp.data.model.WeatherCondition;
 

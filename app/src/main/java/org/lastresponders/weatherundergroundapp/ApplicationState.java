@@ -16,6 +16,8 @@ public class ApplicationState {
     String zipCode = null;
     WeatherCondition weatherCondition = null;
     List<ForecastDay> forecaseDays = null;
+    List<ForecastHour> forecastHours = null;
+    Date lastUpdate = null;
 
     public Date getRefreshTime() {
         return refreshTime;
@@ -24,8 +26,6 @@ public class ApplicationState {
     public void setRefreshTime(Date refreshTime) {
         this.refreshTime = refreshTime;
     }
-
-    List<ForecastHour> forecastHours = null;
 
     public String getZipCode() {
         return zipCode;
@@ -66,24 +66,6 @@ public class ApplicationState {
     public void setForecastHours(List<ForecastHour> forecastHours) {
         this.forecastHours = forecastHours;
     }
-
-    public Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
-    public static ApplicationState getSingleton() {
-        return singleton;
-    }
-
-    public static void setSingleton(ApplicationState singleton) {
-        ApplicationState.singleton = singleton;
-    }
-
-    Date lastUpdate = null;
 
     private static ApplicationState singleton = null;
 
